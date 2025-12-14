@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/Pranav-Thorve/EKS-HELM-ARGOCD.git
     targetRevision: main
-    path: manifests/dbservice
+    path: acme-gitops/manifests/dbservice
   destination:
     server: https://kubernetes.default.svc
     namespace: default
