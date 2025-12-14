@@ -1,0 +1,47 @@
+pipeline {
+  agent any
+
+  environment {
+    AWS_REGION = "us-east-1"
+    ECR_REGISTRY = "506087227126.dkr.ecr.us-east-1.amazonaws.com"
+    IMAGE_NAME = "db-service"
+    IMAGE_TAG = "1.1.1"
+  }
+
+  stages {
+    stage("Checkout") {
+      steps {
+                git branch: 'main', url: 'https://github.com/Pranav-Thorve/EKS-HELM-ARGOCD.git'
+                dir('dbservice') { echo "dbservice directory loaded" }
+            }
+    }
+
+    stage("Build Image") {
+      steps {
+        dir("db-service") {
+          sh """
+            docker build \
+              -t $ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG .
+          """
+        }
+      }
+    }
+
+    stage("Login to ECR") {
+      steps {
+        sh """
+          aws ecr get-login-password --region $AWS_REGION \
+          | docker login --username AWS --password-stdin $ECR_REGISTRY
+        """
+      }
+    }
+
+    stage("Push Image") {
+      steps {
+        sh """
+          docker push $ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG
+        """
+      }
+    }
+  }
+}

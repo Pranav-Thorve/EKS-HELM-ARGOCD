@@ -1,0 +1,11 @@
+{
+    "name": "backend-service",
+    "version": "1.6.1",
+    "dependencies": {
+      "express": "^4.19.2",
+      "node-fetch": "^2.6.9",
+      "kafkajs": "^2.2.4",
+      "pg": "^8.11.5"
+    }
+  }
+  

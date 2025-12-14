@@ -1,0 +1,54 @@
+pipeline {
+  agent any
+
+  environment {
+    AWS_REGION = "us-east-1"
+    ECR_REGISTRY = "506087227126.dkr.ecr.us-east-1.amazonaws.com"
+    IMAGE_NAME   = "api-service"
+    IMAGE_TAG    = "1.0.1"
+  }
+
+  stages {
+
+    stage("Checkout") {
+      steps {
+                git branch: 'main', url: 'https://github.com/Pranav-Thorve/EKS-HELM-ARGOCD.git'
+                dir('api') { echo "api directory loaded" }
+            }
+    }
+
+    stage("Build Image") {
+      steps {
+        dir("api-service") {
+          sh """
+            docker build \
+              -t $ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG .
+          """
+        }
+      }
+    }
+
+    stage("Login to ECR") {
+      steps {
+        sh """
+          aws ecr get-login-password --region $AWS_REGION \
+          | docker login --username AWS --password-stdin $ECR_REGISTRY
+        """
+      }
+    }
+
+    stage("Push Image") {
+      steps {
+        sh """
+          docker push $ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG
+        """
+      }
+    }
+  }
+
+  post {
+    success {
+      echo "API service image pushed successfully"
+    }
+  }
+}
