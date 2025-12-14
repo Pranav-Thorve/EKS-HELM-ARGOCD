@@ -18,7 +18,7 @@ pipeline {
 
     stage("Build Image") {
       steps {
-        dir("db-service") {
+        dir("dbservice") {
           sh """
             docker build \
               -t $ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG .
