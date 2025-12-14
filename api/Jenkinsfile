@@ -4,7 +4,7 @@ pipeline {
   environment {
     AWS_REGION = "us-east-1"
     ECR_REGISTRY = "506087227126.dkr.ecr.us-east-1.amazonaws.com"
-    IMAGE_NAME   = "api"
+    IMAGE_NAME   = "acmesite/api"
     IMAGE_TAG    = "1.0.1"
   }
 
