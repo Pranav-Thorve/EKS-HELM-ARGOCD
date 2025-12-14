@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kafka
+spec:
+  serviceName: kafka
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka
+  template:
+    metadata:
+      labels:
+        app: kafka
+    spec:
+
+      initContainers:
+      - name: kafka-storage-init
+        image: 506087227126.dkr.ecr.us-east-1.amazonaws.com/kafka:1.0.1
+        command:
+          - sh
+          - -c
+          - |
+            if [ ! -f /var/lib/kafka/data/meta.properties ]; then
+              echo "Formatting Kafka storage..."
+              /opt/kafka/bin/kafka-storage.sh format \
+                -t Z4Pp2sD2QkG7R2H3aXyFJg \
+                -c /opt/kafka/config/server.properties
+            else
+              echo "Kafka storage already formatted"
+            fi
+        volumeMounts:
+          - name: kafka-data
+            mountPath: /var/lib/kafka/data
+          - name: kafka-config
+            mountPath: /opt/kafka/config
+
+      containers:
+      - name: kafka
+        image: 506087227126.dkr.ecr.us-east-1.amazonaws.com/kafka:1.0.1
+        ports:
+          - containerPort: 9092
+          - containerPort: 9093
+        volumeMounts:
+          - name: kafka-data
+            mountPath: /var/lib/kafka/data
+          - name: kafka-config
+            mountPath: /opt/kafka/config
+
+      volumes:
+        - name: kafka-config
+          configMap:
+            name: kafka-config
+        - name: kafka-data
+          emptyDir: {}
+
